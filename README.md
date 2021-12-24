@@ -2,11 +2,13 @@
 A script to add CheatEngine style search commands to gdb
 
 ### Usage:
-Begin a new search with `cheatsearch new`:
+#### Begin a new search with `cheatsearch new`:
 
 `(gdb) cheatsearch new start-address end-address value`
 
-Change the state of the program then filter the results with `cheatsearch next` as required:
+`value` can be omitted to search for an unknown initial value.
+
+#### Change the state of the program then filter the results with `cheatsearch next` as required:
 
 `(gdb) cheatsearch next command`
 
@@ -36,4 +38,3 @@ Clear the current search:
 ### Current Limitations:
 - Only little-endian 32 bit integers are searchable
 - Memory is always dumped via `dump binary memory` to the cwd as `memory.bin`
-- An initial value must be given, no "Unknown Value" option for first search

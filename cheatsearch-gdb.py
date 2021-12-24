@@ -29,7 +29,9 @@ def first_search(needle, start_addr, data_type, filename):
         while f.tell() < file_size:
             addr = f.tell()
             value = struct.unpack(data_type.fmt, f.read(data_type.size))[0]
-            if value == needle:
+            if needle == None:
+                results.append(Result(addr, start_addr + addr, value))
+            elif value == needle:
                 results.append(Result(addr, start_addr + addr, value))
 
     return results
@@ -99,7 +101,13 @@ class CheatSearch(gdb.Command):
                 self.end_addr = to_int(args[2])
 
                 gdb.execute(f'dump binary memory memory.bin {self.start_addr} {self.end_addr}')
-                self.results = first_search(to_int(args[3]), self.start_addr, DataType('<I', 4), 'memory.bin')
+
+                if len(args) < 4:
+                    needle = None
+                else:
+                    needle = to_int(args[3])
+
+                self.results = first_search(needle, self.start_addr, DataType('<I', 4), 'memory.bin')
                 print_results(self.results)
         
             case 'next':
