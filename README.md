@@ -37,4 +37,3 @@ Clear the current search:
 - Only little-endian 32 bit integers are searchable
 - Memory is always dumped via `dump binary memory` to the cwd as `memory.bin`
 - An initial value must be given, no "Unknown Value" option for first search
-- Decimal values only for most arguments
