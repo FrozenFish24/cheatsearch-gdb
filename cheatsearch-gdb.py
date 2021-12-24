@@ -7,6 +7,17 @@ Result = namedtuple('Result', ['file_addr', 'mem_addr', 'value'])
 DataType = namedtuple('DataType', ['fmt', 'size'])
 
 
+def to_int(string):
+    if string.startswith('0x') or string.startswith('0X'):  # Hex
+        return int(string, 16)
+    elif string.startswith('0b'):                           # Binary
+        return int(string, 2)
+    elif string.startswith('0'):                            # Octal
+        return int(string, 8)
+    else:                                                   # Decimal
+        return int(string)
+
+
 def first_search(needle, start_addr, data_type, filename):
     results = []
 
@@ -84,18 +95,11 @@ class CheatSearch(gdb.Command):
             case 'new':
                 self.searching = True
                 
-                if args[1].startswith('0x') or args[1].startswith('0X'):
-                    self.start_addr = int(args[1], 16)
-                else:
-                    self.start_addr = int(args[1])
-
-                if args[2].startswith('0x') or args[2].startswith('0X'):
-                    self.end_addr = int(args[2], 16)
-                else:
-                    self.end_addr = int(args[2])
+                self.start_addr = to_int(args[1])
+                self.end_addr = to_int(args[2])
 
                 gdb.execute(f'dump binary memory memory.bin {self.start_addr} {self.end_addr}')
-                self.results = first_search(int(args[3]), self.start_addr, DataType('<I', 4), 'memory.bin')
+                self.results = first_search(to_int(args[3]), self.start_addr, DataType('<I', 4), 'memory.bin')
                 print_results(self.results)
         
             case 'next':
@@ -111,7 +115,7 @@ class CheatSearch(gdb.Command):
                         command = 3
                     case 'nv':          # New value
                         command = 4
-                        new_value = int(args[2])
+                        new_value = to_int(args[2])
                         print(new_value)
                     case _:
                         return
