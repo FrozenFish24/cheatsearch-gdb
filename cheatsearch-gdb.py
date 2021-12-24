@@ -29,7 +29,7 @@ def first_search(needle, start_addr, data_type, filename):
         while f.tell() < file_size:
             addr = f.tell()
             value = struct.unpack(data_type.fmt, f.read(data_type.size))[0]
-            if needle == None or value == needle:
+            if needle is None or value == needle:
                 results.append(Result(addr, start_addr + addr, value))
 
     return results
