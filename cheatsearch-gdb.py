@@ -77,6 +77,8 @@ def print_results(results):
 
 
 class CheatSearch(gdb.Command):
+    '''CheatEngine style search'''
+    
     def __init__(self):
         super().__init__('cheatsearch', gdb.COMMAND_USER)
         self.start_addr = None
