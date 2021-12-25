@@ -81,6 +81,7 @@ class CheatSearch(gdb.Command):
     
     def __init__(self):
         super().__init__('cheatsearch', gdb.COMMAND_USER)
+        self.data_type = None
         self.start_addr = None
         self.end_addr = None
         self.searching = False
@@ -97,17 +98,41 @@ class CheatSearch(gdb.Command):
             case 'new':
                 self.searching = True
                 
-                self.start_addr = to_int(args[1])
-                self.end_addr = to_int(args[2])
+                match args[1]:
+                    case 'uint64':
+                        self.data_type = DataType('<Q', 8)
+                    case 'sint64':
+                        self.data_type = DataType('<q', 8)
+                    case 'uint32':
+                        self.data_type = DataType('<I', 4)
+                    case 'sint32':
+                        self.data_type = DataType('<i', 4)
+                    case 'uint16':
+                        self.data_type = DataType('<H', 2)
+                    case 'sint16':
+                        self.data_type = DataType('<h', 2)
+                    case 'uint8':
+                        self.data_type = DataType('<B', 1)
+                    case 'sint8':
+                        self.data_type = DataType('<b', 1)
+                    #case 'float':
+                    #    self.data_type = DataType('<f', 4)
+                    #case 'double':
+                    #    self.data_type = DataType('<d', 8)
+                    case _:
+                        raise ValueError('Invalid data type')
+
+                self.start_addr = to_int(args[2])
+                self.end_addr = to_int(args[3])
 
                 gdb.execute(f'dump binary memory memory.bin {self.start_addr} {self.end_addr}')
 
-                if len(args) < 4:
+                if len(args) < 5:
                     needle = None
                 else:
-                    needle = to_int(args[3])
+                    needle = to_int(args[4])
 
-                self.results = first_search(needle, self.start_addr, DataType('<I', 4), 'memory.bin')
+                self.results = first_search(needle, self.start_addr, self.data_type, 'memory.bin')
                 print_results(self.results)
         
             case 'next':
@@ -130,7 +155,7 @@ class CheatSearch(gdb.Command):
 
                 gdb.execute(f'dump binary memory memory.bin {self.start_addr} {self.end_addr}')
                 print(new_value)
-                self.results = next_search(self.results, command, DataType('<I', 4), 'memory.bin', new_value)
+                self.results = next_search(self.results, command, self.data_type, 'memory.bin', new_value)
                 print_results(self.results)
 
             case 'results':
